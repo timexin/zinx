@@ -9,7 +9,8 @@ import (
 func main() {
 	svr := service.NewSvr("demo")
 	// 添加自定义模版
-	svr.AddRouter(&PingRouter{})
+	svr.AddRouter(0, &PingRouter{})
+	svr.AddRouter(1, &HelloRouter{})
 	svr.Serve()
 }
 
@@ -21,6 +22,19 @@ func (this *PingRouter) Handle(request ifce.IRequest) {
 	fmt.Println("Call Router Handle...\n")
 	fmt.Println("recv from client:", string(request.GetData()))
 	err := request.GetConnection().SendMsg(request.GetMsgId(), []byte("ping..ping...ping"))
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+type HelloRouter struct {
+	ifce.IRouter
+}
+
+func (this *HelloRouter) Handle(request ifce.IRequest) {
+	fmt.Println("Call Router Handle...\n")
+	fmt.Println("recv from client:", string(request.GetData()))
+	err := request.GetConnection().SendMsg(request.GetMsgId(), []byte("hello..hello...hello"))
 	if err != nil {
 		fmt.Println(err)
 	}

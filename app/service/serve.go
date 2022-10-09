@@ -8,11 +8,11 @@ import (
 )
 
 type zix struct {
-	Name    string
-	Version string
-	Ip      string
-	Port    string
-	Router  ifce.IRouter
+	Name      string
+	Version   string
+	Ip        string
+	Port      string
+	MsgHandle ifce.IMsgHandle
 }
 
 func (z *zix) Start() {
@@ -38,7 +38,7 @@ func (z *zix) Start() {
 				fmt.Println("accept err", err)
 				continue
 			}
-			conn := NewConn(acceptTCP, cid, z.Router)
+			conn := NewConn(acceptTCP, cid, z.MsgHandle)
 
 			cid++
 			go conn.Start()
@@ -74,16 +74,17 @@ func (z *zix) Serve() {
 	select {}
 }
 
-func (z *zix) AddRouter(router ifce.IRouter) {
-	z.Router = router
+func (z *zix) AddRouter(msgId uint32, router ifce.IRouter) {
+	z.MsgHandle.AddRouter(msgId, router)
 	fmt.Println("Add Router Success")
 }
 
 func NewSvr(name string) ifce.Isv {
 	return &zix{
-		Name:    utils.GlobalObject.Name,
-		Version: "tcp4",
-		Ip:      utils.GlobalObject.Host,
-		Port:    utils.GlobalObject.TcpPort,
+		Name:      utils.GlobalObject.Name,
+		Version:   "tcp4",
+		Ip:        utils.GlobalObject.Host,
+		Port:      utils.GlobalObject.TcpPort,
+		MsgHandle: NewMsgHandle(),
 	}
 }

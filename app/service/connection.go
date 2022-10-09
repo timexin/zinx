@@ -16,18 +16,18 @@ type Connection struct {
 	// 当前链接的状态
 	IsClosed bool
 	// 处理业务方法API
-	Router ifce.IRouter
+	MsgHandler ifce.IMsgHandle
 	// 告知当前链接已经退出的channel
 	ExitChan chan bool
 }
 
-func NewConn(conn *net.TCPConn, connID uint32, router ifce.IRouter) ifce.IConnection {
+func NewConn(conn *net.TCPConn, connID uint32, MsgHandler ifce.IMsgHandle) ifce.IConnection {
 	return &Connection{
-		Conn:     conn,
-		ConnID:   connID,
-		Router:   router,
-		IsClosed: false,
-		ExitChan: make(chan bool, 1),
+		Conn:       conn,
+		ConnID:     connID,
+		MsgHandler: MsgHandler,
+		IsClosed:   false,
+		ExitChan:   make(chan bool, 1),
 	}
 }
 
@@ -71,11 +71,7 @@ func (c *Connection) StartReader() {
 			conn: c,
 			msg:  msg,
 		}
-		go func(request ifce.IRequest) {
-			//		c.Router.PreHandle(request)
-			c.Router.Handle(request)
-			//		c.Router.PostHandle(request)
-		}(req)
+		go c.MsgHandler.DoMsgHandler(req)
 		// 从路由中，找到该链接的Conn对应的router调用
 
 	}
@@ -87,7 +83,7 @@ func (c *Connection) SendMsg(msgId uint32, data []byte) error {
 	}
 	dp := NewDataPack()
 	msg := new(Message)
-	msg.Id = 1
+	msg.Id = msgId
 	msg.Data = data
 	msg.DataLen = uint32(len(data))
 	pack, err := dp.Pack(msg)
