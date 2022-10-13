@@ -3,6 +3,6 @@
   "Host": "127.0.0.1",
   "TcpPort": "7766",
   "Version": "v0.1",
-  "MaxConn": 1000,
+  "MaxConn": 1,
   "MaxPackageSize": 4096
 }

@@ -6,4 +6,8 @@ type IMsgHandle interface {
 
 	//为消息添加具体的处理方法
 	AddRouter(msgID uint32, router IRouter)
+
+	StartWorkerPool()
+
+	SendMsgToTaskQuque(request IRequest)
 }

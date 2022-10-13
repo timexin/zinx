@@ -8,6 +8,15 @@ import (
 
 func main() {
 	svr := service.NewSvr("demo")
+	svr.SetOnConnStart(func(conn ifce.IConnection) {
+		fmt.Println("----->DoConnectionBegin is Called ..")
+		if err := conn.SendMsg(202, []byte("DoConnection Begin")); err != nil {
+			fmt.Println(err)
+		}
+	})
+	svr.SetOnConnStop(func(conn ifce.IConnection) {
+		fmt.Println("----->DoConnectionClosed is Called ..")
+	})
 	// 添加自定义模版
 	svr.AddRouter(0, &PingRouter{})
 	svr.AddRouter(1, &HelloRouter{})
